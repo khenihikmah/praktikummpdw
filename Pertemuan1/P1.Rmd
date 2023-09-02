@@ -59,10 +59,3 @@ ts.plot(data1.ts, xlab="Time Period ", ylab="Penumpang China Eastern Airlines",
 points(data1.ts)
 ```
 
-Menyimpan plot
-
-```{r}
-#menyimpan plot
-#dev.copy(png, "eksplorasi.png")
-#dev.off()
-```
