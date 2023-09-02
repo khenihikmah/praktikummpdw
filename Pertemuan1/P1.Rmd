@@ -57,5 +57,5 @@ Membuat plot data deret waktu
 ts.plot(data1.ts, xlab="Time Period ", ylab="Penumpang China Eastern Airlines", 
         main = "Time Series Plot")
 points(data1.ts)
-```
+```    
 
