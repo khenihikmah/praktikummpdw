@@ -526,6 +526,7 @@ akurasitestingdes
 
 #### Perbandingan SES dan DES
 
+
 ```{r}
 MSEfull <-
   matrix(c(MSEtesting1,MSEtesting2,MSEtestingopt,MSEtestingdes1,MSEtestingdes2,
