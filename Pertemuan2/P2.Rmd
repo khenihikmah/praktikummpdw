@@ -41,7 +41,7 @@ data.ts<-ts(data$Y)
 data.ts
 
 #Membuat plot time series
-ts.plot(data.ts, xlab="Time Period ", ylab="Total", main= "Time Series Plot of Total")
+ts.plot(data.ts, xlab="Time Period ", ylab="Y", main= "Time Series Plot of Y")
 points(data.ts)
 ```
 
@@ -106,11 +106,11 @@ Pertama akan data akan dibagi menjadi data *training* dan data *testing*.
 ```{r}
 #membagi training dan testing
 training<-data[1:56,1]
-testing<-data[5:72,1]
+testing<-data[57:70,1]
 
 #data time series
 training.ts<-ts(training)
-testing.ts<-ts(testing,start=59)
+testing.ts<-ts(testing,start=57)
 
 #eksplorasi data
 plot(data.ts, col="red",main="Plot semua data")
@@ -177,27 +177,6 @@ Berdasarkan perbandingan akurasi tersebut, terlihat nilai SSE, MSE, dan MAPE met
 
 Setelah melakukan peramalan, data yang telah dimasukkan kemudian dieksplorasi. Eksplorasi pertama yang dilakukan adalah dengan menggunakan *scatter plot*.
 
-```{r}
-#Eksplorasi Data
-#Pembuatan Scatter Plot
-plot(data$y,data$x1, pch = 20, col = "blue",
-     main = "Scatter Plot Tahun vs Nilai IPM",
-     xlab = "Tahun",
-     ylab = "Nilai IPM")
-#Menampilkan Nilai Korelasi
-cor(tahun,ipm)
-```
-
-```{r}
-#Eksplorasi Data
-#Pembuatan Scatter Plot
-plot(data$y,data$x2, pch = 20, col = "blue",
-     main = "Scatter Plot Tahun vs Nilai IPM",
-     xlab = "Tahun",
-     ylab = "Nilai IPM")
-#Menampilkan Nilai Korelasi
-cor(tahun,ipm)
-```
 
 ```{r}
 GGally::ggpairs(data[sapply(data,is.numeric)])
