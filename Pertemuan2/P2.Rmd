@@ -27,7 +27,7 @@ Data yang digunakan dalam kesempatan kali ini adalah data IPM Provinsi Gorontalo
 
 ```{r}
 library(rio)
-data <- import("https://raw.githubusercontent.com/khenihikmah/praktikummpdw/main/Pertemuan2/salesmonthly.csv")
+data <- import("https://raw.githubusercontent.com/khenihikmah/praktikummpdw/main/Pertemuan2/Salesmonthly.csv")
 data
 ```
 
