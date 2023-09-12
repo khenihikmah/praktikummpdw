@@ -284,9 +284,11 @@ Hasil model transformasi bukan merupakan model sesungguhnya. Koefisien regresi m
 #Mencari Penduga Koefisien Regresi setelah Transformasi ke Persamaan Awal
 b0bintang <- modelCOmanual$coefficients[-2]
 b0 <- b0bintang/(1-rho)
-b1 <- modelCOmanual$coefficients[-1]
+b1 <- modelCOmanual$coefficients[-2]
+b2 <- modelCOmanual$coefficients[-3]
 b0
 b1
+b2
 ```
 
 Hasil perhitungan koefisien regresi tersebut akan menghasilkan hasil yang sama dengan model yang dihasilkan menggunakan *packages*.
@@ -342,7 +344,7 @@ modelHL <- hildreth.lu.func(0.4829805, model)
 summary(modelHL)
 
 #Transformasi Balik
-cat("y = ", coef(modelHL)[1]/(1-0.4829805), "+", coef(modelHL)[2],"x", sep = "")
+cat("y = ", coefficients(modelHL)[1]/(1-0.6454578), "+", coefficients(modelHL)[2],"x1",coefficients(modelHL)[3],"x2",sep = "")
 ```
 
 Setelah dilakukan tranformasi balik, didapatkan model dengan metode Hildreth-Lu sebagai berikut. $$y_i=-1062.032+0.5597492x_t$$
