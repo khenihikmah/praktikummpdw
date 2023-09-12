@@ -299,14 +299,16 @@ Penanganan kedua adalah menggunakan metode Hildreth-Lu. Metode ini akan mencari 
 #Penanganan Autokorelasi Hildreth lu
 # Hildreth-Lu
 hildreth.lu.func<- function(r, model){
-  x <- model.matrix(model)[,-1]
+  x1<- model.matrix(model)[,2]
+  x2<- model.matrix(model)[,3]
   y <- model.response(model.frame(model))
   n <- length(y)
   t <- 2:n
   y <- y[t]-r*y[t-1]
-  x <- x[t]-r*x[t-1]
+  x1 <- x1[t]-r*x1[t-1]
+  x2 <- x2[t]-r*x2[t-1]
   
-  return(lm(y~x))
+  return(lm(y~x1+x2))
 }
 ```
 
