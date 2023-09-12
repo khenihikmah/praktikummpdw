@@ -284,8 +284,8 @@ Hasil model transformasi bukan merupakan model sesungguhnya. Koefisien regresi m
 #Mencari Penduga Koefisien Regresi setelah Transformasi ke Persamaan Awal
 b0bintang <- modelCOmanual$coefficients[-2]
 b0 <- b0bintang/(1-rho)
-b1 <- modelCOmanual$coefficients[-2]
-b2 <- modelCOmanual$coefficients[-3]
+b1 <- modelCOmanual$coefficients[2]
+b2 <- modelCOmanual$coefficients[3]
 b0
 b1
 b2
