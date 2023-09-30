@@ -1,0 +1,257 @@
+---
+title: "Pertemuan 5"
+author: Kheni Hikmah Lestari
+date: "2023-09-28"
+output:
+  html_document:
+    theme: yeti
+    toc: true
+    toc_float: true
+  word_document: default
+  pdf_document: default
+---
+
+```{r}
+library(ggplot2)
+library(tsibble)
+library(tseries)
+library(MASS)
+library("rio")
+```
+
+# Impor Data
+ Data yang digunakan adalah data penumpang masuk menurut maskapai penerbangan. Data penumpang maskapai China Eastern Airlines tujuan ke China. 
+```{r}
+data1 = import("https://raw.githubusercontent.com/khenihikmah/praktikummpdw/main/Pertemuan1/Data%20Penumpang%20Pesawat.csv")
+data1
+data <- ts(data1$Passengers)
+```
+
+# Plot *Time Series*
+
+```{r}
+ts.plot(data, xlab="Time Period ", ylab="Penumpang China Eastern Airlines", 
+        main = "Time Series Plot")
+points(data)
+mean(data)
+```
+
+```{r}
+plot_stas <- data |> as_tsibble() |> 
+  ggplot(aes(x = index, y = value)) + geom_line() + theme_bw() +
+  xlab("Obs") + ylab("Nilai")
+plot_stas
+mean(data)
+```
+
+Plot deret waktu di atas menunjukkan bahwa data tidak stasioner dalam rataan, ditandai dengan data yang tidak menyebar di sekitar nilai tengahnya dan tidak stasioner dalam ragam, ditandai dengan lebar pita yang cenderung berbeda. Sehingga dapat dikatakan bahwa data AirPassengers tidak stasioner dan mengandung musiman.
+
+# Plot ACF
+
+```{r}
+acf(data)
+```
+
+Berdasarkan plot ACF, terlihat bahwa plot ACF pada data tersebut cenderung *tails off* (meluruh menjadi nol secara asimptotik) yang mengindikasikan bahwa data tidak stasioner.
+
+# Uji ADF
+
+```{r}
+tseries::adf.test(data)
+```
+
+$H_0$ : Data tidak stasioner dalam rataan
+
+$H_1$ : Data stasioner dalam rataan
+
+Berdasarkan uji ADF tersebut, didapat *p-value* sebesar 0.01 yang lebih kecil dari taraf nyata 5% sehingga tolak $H_0$ dan menandakan bahwa data stasioner dalam rataan. Hal ini tidak sesuai dengan hasil eksplorasi menggunakan plot time series dan plot ACF. Jika menggunakan hasil eksplorasi menandakan data tidak stasioner dalam rataan karena data trend. 
+
+Kemudian dilanjutkan uji KPSS untuk uji statioer rataanya.
+```{r}
+kpss.test(data,null="Level")
+```
+$H_0$ : Data tidak stasioner dalam rataan
+
+$H_1$ : Data stasioner dalam rataan
+
+Berdasarkan uji ADF tersebut, didapat *p-value* sebesar 0.01 yang lebih kecil dari taraf nyata 5% sehingga tolak $H_0$ dan menandakan bahwa data stasioner dalam rataan. 
+
+Maka dari itu, harus dilakukan diferensiasi. Diferensiasi yang pertama adalah diferensiasi guna menghilangkan efek musiman pada data yang menyebabkan data menjadi tidak stasioner.
+
+```{r}
+AP.dslog=diff(log(data),differences=1,lag=24)
+adf.test(AP.dslog)
+```
+$H_0$ : Data tidak stasioner dalam rataan
+
+$H_1$ : Data stasioner dalam rataan
+
+Berdasarkan uji ADF tersebut, didapat *p-value* sebesar 0.1804 yang lebih besar dari taraf nyata 5% sehingga terima $H_0$ dan menandakan bahwa data tidak stasioner dalam rataan. Hal ini sesuai dengan hasil eksplorasi menggunakan plot time series dan plot ACF.  
+
+
+# Plot Box-Cox
+
+```{r}
+index <- seq(1:132)
+bc = boxcox(data~index, lambda = seq(-4,6, by=0.01))
+#Nilai Rounded Lambda
+lambda <- bc$x[which.max(bc$y)]
+lambda
+#SK
+bc$x[bc$y > max(bc$y) - 1/2 * qchisq(.95,1)]
+```
+
+Gambar di atas menunjukkan nilai *rounded value* ($\lambda$) optimum sebesar **0.27** dan pada selang kepercayaan 95% nilai memiliki batas bawah **0.10** dan batas atas **0.45**. Selang tersebut tidak memuat nilai satu sehingga dapat dikatakan bahwa data bangkitan tidak stasioner dalam ragam.
+
+# Partisi Data
+
+## Bagian 1
+
+```{r}
+dt_stas1 <- data[1:65] |> ts()
+mean(dt_stas1)
+var(dt_stas1)
+```
+
+## Plot Time Series
+
+```{r}
+dt_stas1 |> as_tsibble() |> 
+  ggplot(aes(x = index, y = value)) +
+  geom_line() + theme_bw() +
+  xlab("Obs") + ylab("Nilai")
+```
+
+Plot deret waktu di atas menunjukkan bahwa data tidak stasioner dalam rataan, ditandai dengan data yang tidak menyebar di sekitar nilai tengahnya dan tidak stasioner dalam ragam, ditandai dengan lebar pita yang cenderung berbeda.
+# Plot ACF
+
+```{r}
+acf(data)
+```
+
+Berdasarkan plot ACF, terlihat bahwa plot ACF pada data tersebut cenderung *tails off* slowly dan membentuk gelombang sinus.
+
+# Uji ADF
+
+```{r}
+tseries::adf.test(data)
+```
+
+$H_0$ : Data tidak stasioner dalam rataan
+
+$H_1$ : Data stasioner dalam rataan
+
+Berdasarkan uji ADF tersebut, didapat *p-value* sebesar 0.01 yang lebih kecil dari taraf nyata 5% sehingga tolak $H_0$ dan menandakan bahwa data stasioner dalam rataan. Hal ini tidak sesuai dengan hasil eksplorasi menggunakan plot time series dan plot ACF. Jika menggunakan hasil eksplorasi menandakan data tidak stasioner dalam rataan karena data trend. 
+
+Kemudian dilanjutkan uji KPSS untuk uji statioer rataanya.
+```{r}
+kpss.test(data,null="Level")
+```
+$H_0$ : Data tidak stasioner dalam rataan
+
+$H_1$ : Data stasioner dalam rataan
+
+Berdasarkan uji ADF tersebut, didapat *p-value* sebesar 0.01 yang lebih kecil dari taraf nyata 5% sehingga tolak $H_0$ dan menandakan bahwa data stasioner dalam rataan. 
+
+Maka dari itu, harus dilakukan diferensiasi. Diferensiasi yang pertama adalah diferensiasi guna menghilangkan efek musiman pada data yang menyebabkan data menjadi tidak stasioner.
+
+```{r}
+AP.dslog=diff(log(data),differences=1,lag=24)
+adf.test(AP.dslog)
+```
+$H_0$ : Data tidak stasioner dalam rataan
+
+$H_1$ : Data stasioner dalam rataan
+
+Berdasarkan uji ADF tersebut, didapat *p-value* sebesar 0.1804 yang lebih besar dari taraf nyata 5% sehingga terima $H_0$ dan menandakan bahwa data tidak stasioner dalam rataan. Hal ini sesuai dengan hasil eksplorasi menggunakan plot time series dan plot ACF.  
+
+## Plot Boxcox
+
+```{r}
+index <- seq(1:65)
+bc = boxcox(dt_stas1~index, lambda = seq(-4,7,by=1))
+#Nilai Rounded Lambda
+lambda <- bc$x[which.max(bc$y)]
+lambda
+#SK
+bc$x[bc$y > max(bc$y) - 1/2 * qchisq(.95,1)]
+```
+
+Gambar di atas menunjukkan nilai *rounded value* ($\lambda$) optimum sebesar **0.4444444** dan pada selang kepercayaan 95% nilai memiliki batas atas **0.8888889** dan batas bawah **0.1111111**. Selang tersebut tidak memuat nilai satu sehingga tidak dapat dikatakan bahwa data bangkitan stasioner dalam ragam.
+
+# Bagian 2
+
+```{r}
+dt_stas2 <- data[1:114] |> ts()
+mean(dt_stas2)
+var(dt_stas2)
+```
+
+## Plot Time Series
+
+```{r}
+dt_stas2 |> as_tsibble() |> 
+  ggplot(aes(x = index, y = value)) +
+  geom_line() + theme_bw() +
+  xlab("Obs") + ylab("Nilai")
+```
+
+Plot deret waktu di atas menunjukkan bahwa data tidak stasioner dalam rataan, ditandai dengan data yang tidak menyebar di sekitar nilai tengahnya dan tidak stasioner dalam ragam, ditandai dengan lebar pita yang cenderung berbeda.
+
+
+# Plot ACF
+
+```{r}
+acf(data)
+```
+
+Berdasarkan plot ACF, terlihat bahwa plot ACF pada data tersebut cenderung *tails off* slowly dan membentuk gelombang sinus.
+
+# Uji ADF
+
+```{r}
+tseries::adf.test(data)
+```
+
+$H_0$ : Data tidak stasioner dalam rataan
+
+$H_1$ : Data stasioner dalam rataan
+
+Berdasarkan uji ADF tersebut, didapat *p-value* sebesar 0.01 yang lebih kecil dari taraf nyata 5% sehingga tolak $H_0$ dan menandakan bahwa data stasioner dalam rataan. Hal ini tidak sesuai dengan hasil eksplorasi menggunakan plot time series dan plot ACF. Jika menggunakan hasil eksplorasi menandakan data tidak stasioner dalam rataan karena data trend. 
+
+Kemudian dilanjutkan uji KPSS untuk uji statioer rataanya.
+```{r}
+kpss.test(data,null="Level")
+```
+$H_0$ : Data tidak stasioner dalam rataan
+
+$H_1$ : Data stasioner dalam rataan
+
+Berdasarkan uji ADF tersebut, didapat *p-value* sebesar 0.01 yang lebih kecil dari taraf nyata 5% sehingga tolak $H_0$ dan menandakan bahwa data stasioner dalam rataan. 
+
+Maka dari itu, harus dilakukan diferensiasi. Diferensiasi yang pertama adalah diferensiasi guna menghilangkan efek musiman pada data yang menyebabkan data menjadi tidak stasioner.
+
+```{r}
+AP.dslog=diff(log(data),differences=1,lag=24)
+adf.test(AP.dslog)
+```
+$H_0$ : Data tidak stasioner dalam rataan
+
+$H_1$ : Data stasioner dalam rataan
+
+Berdasarkan uji ADF tersebut, didapat *p-value* sebesar 0.1804 yang lebih besar dari taraf nyata 5% sehingga terima $H_0$ dan menandakan bahwa data tidak stasioner dalam rataan. Hal ini sesuai dengan hasil eksplorasi menggunakan plot time series dan plot ACF.  
+
+
+## Plot Boxcox
+
+```{r}
+index <- seq(1:114)
+bc = boxcox(dt_stas2~index, lambda = seq(-4,5,by=1))
+#Nilai Rounded Lambda
+lambda <- bc$x[which.max(bc$y)]
+lambda
+#SK
+bc$x[bc$y > max(bc$y) - 1/2 * qchisq(.95,1)]
+```
+
+Gambar di atas menunjukkan nilai *rounded value* ($\lambda$) optimum sebesar **0.1818182** dan pada selang kepercayaan 95% nilai memiliki batas bawah **0.00000000** dan batas atas **0.36363636**. Selang tersebut tidak memuat nilai satu sehingga tidak dapat dikatakan bahwa data bangkitan stasioner dalam ragam.
